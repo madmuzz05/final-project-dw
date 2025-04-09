@@ -1,0 +1,6 @@
+pymysql
+pymongo
+psycopg2-binary
+pandas
+gspread
+sqlalchemy

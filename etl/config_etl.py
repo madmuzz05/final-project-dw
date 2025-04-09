@@ -1,29 +1,46 @@
 import os
 
 # Koneksi ke Database OLTP (Sumber Data)
-default_conn_string = {
-    'user': os.getenv('OLTP_DB_USER'),
-    'password': os.getenv('OLTP_DB_PASSWORD'),
-    'host': os.getenv('OLTP_DB_HOST'),
-    'port': os.getenv('OLTP_DB_PORT'),
-    'database': 'postgres'
+oltp_conn_pg_payroll = {
+    'host': os.getenv('OLTP_DB_PG_HOST'),
+    'port': os.getenv('OLTP_DB_PG_PORT'),
+    'user': os.getenv('OLTP_DB_PG_USER'),
+    'password': os.getenv('OLTP_DB_PG_PASSWORD'),
+    'database': os.getenv('OLTP_DB_PG_DATABASE_PAYROLL'),
 }
 
-oltp_conn_string = {
-    'user': os.getenv('OLTP_DB_USER'),
-    'password': os.getenv('OLTP_DB_PASSWORD'),
-    'host': os.getenv('OLTP_DB_HOST'),
-    'port': os.getenv('OLTP_DB_PORT'),
-    'database': os.getenv('OLTP_DB_NAME')
+oltp_conn_pg_performance = {
+    'host': os.getenv('OLTP_DB_PG_HOST'),
+    'port': os.getenv('OLTP_DB_PG_PORT'),
+    'user': os.getenv('OLTP_DB_PG_USER'),
+    'password': os.getenv('OLTP_DB_PG_PASSWORD'),
+    'database': os.getenv('OLTP_DB_PG_DATABASE_PERFORMANCE'),
+}
+
+oltp_conn_mariadb = {
+    'host': os.getenv('OLTP_DB_MARIADB_HOST'),
+    'port': os.getenv('OLTP_DB_MARIADB_PORT'),
+    'user': os.getenv('OLTP_DB_MARIADB_USER'),
+    'password': os.getenv('OLTP_DB_MARIADB_PASSWORD'),
+    'database': os.getenv('OLTP_DB_MARIADB_DATABASE'),
+}
+
+oltp_conn_mongodb = {
+    'host': os.getenv('OLTP_DB_MONGODB_HOST'),
+    'port': os.getenv('OLTP_DB_MONGODB_PORT'),
+    'user': os.getenv('OLTP_DB_MONGODB_USER'),
+    'password': os.getenv('OLTP_DB_MONGODB_PASSWORD'),
+    'database': os.getenv('OLTP_DB_MONGODB_DATABASE'),
+    'collection': os.getenv('OLTP_DB_MONGODB_COLLECTION'),
 }
 
 # Koneksi ke Data Warehouse (Tujuan ETL)
-warehouse_conn_string = {
-    'user': os.getenv('DWH_DB_USER'),
-    'password': os.getenv('DWH_DB_PASSWORD'),
+dwh_conn = {
     'host': os.getenv('DWH_DB_HOST'),
     'port': os.getenv('DWH_DB_PORT'),
-    'database': os.getenv('DWH_DB_NAME')
+    'user': os.getenv('DWH_DB_USER'),
+    'password': os.getenv('DWH_DB_PASSWORD'),
+    'database': os.getenv('DWH_DB_DATABASE')
 }
 
 # Mapping antara tabel sumber (OLTP) dan tabel tujuan (Data Warehouse)
@@ -58,95 +75,130 @@ warehouse_tables = {
 }
 
 # Mapping dari sumber (OLTP) ke tujuan (Data Warehouse)
-etl_config = {
-    "users": {
-        "source_table": "tb_users",
-        "destination_table": "dim_user",
+etl_config_dim_employee = {
+    "employee": {
+        "source_table": "tb_management_payroll",
+        "destination_table": "dim_employee",
         "column_mapping": {
-            "user_id": "user_id",
-            "user_first_name": "user_first_name",
-            "user_last_name": "user_last_name",
-            "user_gender": "user_gender",
-            "user_address": "user_address",
-            "user_birthday": "user_birthday",
-            "user_join": "user_join"
-        },
-        "query": "SELECT * FROM tb_users"
-    },
-    "payments": {
-        "source_table": "tb_payments",
-        "destination_table": "dim_payment",
-        "column_mapping": {
-            "payment_id": "payment_id",
-            "payment_name": "payment_name",
-            "payment_status": "payment_status"
-        },
-        "query": "SELECT * FROM tb_payments"
-    },
-    "shippers": {
-        "source_table": "tb_shippers",
-        "destination_table": "dim_shipper",
-        "column_mapping": {
-            "shipper_id": "shipper_id",
-            "shipper_name": "shipper_name"
-        },
-        "query": "SELECT * FROM tb_shippers"
-    },
-    "ratings": {
-        "source_table": "tb_ratings",
-        "destination_table": "dim_rating",
-        "column_mapping": {
-            "rating_id": "rating_id",
-            "rating_level": "rating_level",
-            "rating_status": "rating_status"
-        },
-        "query": "SELECT * FROM tb_ratings"
-    },
-    "vouchers": {
-        "source_table": "tb_vouchers",
-        "destination_table": "dim_voucher",
-        "column_mapping": {
-            "voucher_id": "voucher_id",
-            "voucher_name": "voucher_name",
-            "voucher_price": "voucher_price",
-            "voucher_created_date": "voucher_created_date",
-            "user_id": "user_id"
-        },
-        "query": "SELECT * FROM tb_vouchers"
-    },
-    "orders": {
-        "source_table": ["tb_orders", "tb_users", "tb_payments", "tb_shippers", "tb_ratings", "tb_vouchers"],
-        "destination_table": "fact_orders",
-        "column_mapping": {
-            "order_id": "order_id",
-            "order_date": "order_date",
-            "user_id": "user_id",
-            "payment_id": "payment_id",
-            "shipper_id": "shipper_id",
-            "order_price": "order_price",
-            "order_discount": "order_discount",
-            "voucher_id": "voucher_id",
-            "total": "order_total",
-            "rating_id": "rating_id"
+            "EmployeeID": "employee_id",
+            "Name": "name",
+            "Gender": "gender",
+            "Age": "age",
+            "Department": "department",
+            "Position": "position",
         },
         "query": """
             SELECT 
-                o.order_id,
-                o.order_date,
-                o.user_id,
-                p.payment_id,
-                s.shipper_id,
-                o.order_price AS order_price,
-                o.order_discount AS order_discount,
-                o.order_total AS order_total,
-                o.voucher_id,
-                r.rating_id
-            FROM tb_orders o
-            JOIN tb_users u ON o.user_id = u.user_id
-            JOIN tb_payments p ON o.payment_id = p.payment_id
-            JOIN tb_shippers s ON o.shipper_id = s.shipper_id
-            JOIN tb_ratings r ON o.rating_id = r.rating_id
-            LEFT JOIN tb_vouchers v ON o.voucher_id = v.voucher_id
+                DISTINCT
+                "EmployeeID",
+                "Name",
+                "Gender",
+                "Age",
+                "Department",
+                "Position"
+            FROM tb_management_payroll
+            ORDER BY "EmployeeID"
         """
+    },
+}
+
+etl_config_fact_payroll = {
+    "payroll": {
+        "source_table": "tb_management_payroll",
+        "destination_table": "fact_payroll",
+        "column_mapping": {
+            "EmployeeID": "employee_id",
+            "PaymentDate": "payment_date",
+            "Salary": "salary",
+            "OvertimePay": "overtime_pay",
+        },
+        "query": """
+            SELECT 
+                DISTINCT
+                "EmployeeID",
+                "PaymentDate",
+                "Salary",
+                "OvertimePay"
+            FROM tb_management_payroll
+            ORDER BY "EmployeeID"
+        """
+    },
+}
+
+etl_config_fact_performance_review = {
+    "performance_review": {
+        "source_table": "tb_performance_management",
+        "destination_table": "fact_performance_review",
+        "column_mapping": {
+            "EmployeeID": "employee_id",
+            "ReviewPeriod": "review_period",
+            "Rating": "rating",
+            "Comments": "comments",
+        },
+        "query": """
+            SELECT 
+                DISTINCT
+                "EmployeeID",
+                "ReviewPeriod",
+                "Rating",
+                "Comments"
+            FROM tb_performance_reviews
+            ORDER BY "EmployeeID"
+        """
+    },
+}
+
+etl_config_fact_training = {
+    "training": {
+        "source_table": "tb_training_development",
+        "destination_table": "fact_training",
+        "column_mapping": {
+            "EmployeeID": "employee_id",
+            "TrainingProgram": "training_program",
+            "StartDate": "start_date",
+            "EndDate": "end_date",
+            "Status": "status",
+        },
+        "query": """
+            SELECT 
+                DISTINCT
+                `EmployeeID`,
+                `TrainingProgram`,
+                `StartDate`,
+                `EndDate`,
+                `Status`
+            FROM tb_training_development
+            ORDER BY `EmployeeID`
+        """
+    },
+}
+
+etl_config_dim_candicate = {
+    "candidate": {
+        "collection_name": "recruitment_selection",
+        "destination_table": "dim_candidate",
+        "column_mapping": {
+            "CandidateID": "candidate_id",
+            "Name": "name",
+            "Gender": "gender",
+            "Age": "age"
+        },
+        "query": {}  # Bisa tambahkan filter MongoDB di sini kalau perlu
+    }
+}
+
+etl_config_fact_recruitment = {
+    "recruitment": {
+        "collection_name": "recruitment_selection",
+        "destination_table": "fact_recruitment",
+        "column_mapping": {
+            "CandidateID": "candidate_id",
+            "Position": "position_applied",
+            "ApplicationDate": "application_date",
+            "InterviewDate": "interview_date",
+            "Status": "status",
+            "OfferStatus": "offer_status"
+        },
+        "query": {}  # Bisa tambahkan filter MongoDB di sini kalau perlu
     }
 }

@@ -1,9 +1,7 @@
-
-version: '3.4'
-
 x-airflow-common:
   &airflow-common
-  image: apache/airflow:2.8.3
+  build: .              # Ini yang penting
+  image: custom-airflow:2.8.3
   env_file:
     - .env
   volumes:
@@ -11,6 +9,7 @@ x-airflow-common:
     - ./airflow-data/logs:/opt/airflow/logs
     - ./airflow-data/plugins:/opt/airflow/plugins
     - ./airflow-data/airflow.cfg:/opt/airlfow/airflow.cfg
+    - ./etl:/opt/airflow/etl
   depends_on:
     - postgres
 
@@ -60,4 +59,4 @@ services:
     restart: always
 volumes:
   postgres_airflow:
-      external: true
+      driver: local

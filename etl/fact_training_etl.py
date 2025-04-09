@@ -10,16 +10,19 @@ from sqlalchemy import create_engine
 
 
 sys.path.append(os.path.abspath("/opt/airflow/etl"))
-from config_etl import etl_config
-from config_etl import warehouse_conn_string
-from config_etl import oltp_conn_string
+from config_etl import etl_config_fact_training
+from config_etl import dwh_conn
+from config_etl import oltp_conn_mariadb
 
 warnings.filterwarnings('ignore')
 logging.basicConfig(level=logging.INFO)
 
-def db_connection(conn_params):
+def db_connection(conn_params, is_mariadb=False):
     """Create a connection engine to the database"""
-    conn_str = f"postgresql+psycopg2://{conn_params['user']}:{quote_plus(conn_params['password'])}@{conn_params['host']}/{conn_params['database']}"
+    string = "postgresql+psycopg2"
+    if is_mariadb:
+        string = "mysql"
+    conn_str = f"{string}://{conn_params['user']}:{quote_plus(conn_params['password'])}@{conn_params['host']}:{conn_params['port']}/{conn_params['database']}"
     print(f"Connecting to database with connection string: {conn_str}")
     engine = create_engine(conn_str)
     return engine.connect()
@@ -37,7 +40,7 @@ def extract(table_config):
     """Extract data from the source table"""
     try:
         logging.info(f"Extracting data from {table_config['source_table']}...")
-        with db_connection(oltp_conn_string) as conn:
+        with db_connection(oltp_conn_mariadb, True) as conn:
             df = pd.read_sql(table_config["query"], conn)
         return df
     except Exception as err:
@@ -49,6 +52,7 @@ def transform(df, table_config):
     try:
         logging.info(f"Transforming data for {table_config['destination_table']}...")
         df.rename(columns=table_config["column_mapping"], inplace=True)
+        df.drop_duplicates(subset=["employee_id", "training_program"], inplace=True)
         return df
     except Exception as err:
         logging.info(f"Error transforming data for {table_config['destination_table']}: {err}")
@@ -60,7 +64,7 @@ def load(df, table_config):
         logging.info(f"Replacing data in {table_config['destination_table']}...")
 
         # Connect to the warehouse database
-        with db_connection(warehouse_conn_string) as conn:
+        with db_connection(dwh_conn) as conn:
             # Step 1: Truncate the table (remove all existing data)
             conn.execute(f"TRUNCATE TABLE {table_config['destination_table']} RESTART IDENTITY CASCADE;")
             
@@ -76,12 +80,12 @@ def load(df, table_config):
         logging.info(f"Error replacing data in {table_config['destination_table']}: {err}")
         raise
 
-def run_etl():
+def run_etl_fact_training():
     """Run the full ETL process."""
     try:
         logging.info("Starting ETL Process...")
-        validate_config(etl_config)  # Validate config
-        for table_name, table_config in etl_config.items():
+        validate_config(etl_config_fact_training)  # Validate config
+        for table_name, table_config in etl_config_fact_training.items():
             df = extract(table_config)
             df = transform(df, table_config)
             load(df, table_config)
