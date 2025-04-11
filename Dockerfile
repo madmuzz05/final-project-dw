@@ -10,4 +10,5 @@ RUN pip install --upgrade pip && \
     psycopg2-binary \
     pandas \
     gspread \
-    sqlalchemy
+    sqlalchemy \
+    oauth2client==4.1.3

@@ -43,37 +43,6 @@ dwh_conn = {
     'database': os.getenv('DWH_DB_DATABASE')
 }
 
-# Mapping antara tabel sumber (OLTP) dan tabel tujuan (Data Warehouse)
-table_mapping = {
-    "users": {"source": "tb_users", "destination": "dim_user"},
-    "payments": {"source": "tb_payments", "destination": "dim_payment"},
-    "shippers": {"source": "tb_shippers", "destination": "dim_shipper"},
-    "ratings": {"source": "tb_ratings", "destination": "dim_rating"},
-    "vouchers": {"source": "tb_vouchers", "destination": "dim_voucher"},
-    "orders": {
-        "source": ["tb_orders", "tb_users", "tb_payments", "tb_shippers", "tb_ratings", "tb_vouchers"],
-        "destination": "fact_orders"
-    }
-}
-
-oltp_tables = {
-    "users": "tb_users",
-    "payments": "tb_payments",
-    "shippers": "tb_shippers",
-    "ratings": "tb_ratings",
-    "vouchers": "tb_vouchers",
-    "orders": "tb_orders"
-}
-
-warehouse_tables = {
-    "users": "dim_user",
-    "payments": "dim_payment",
-    "shippers": "dim_shipper",
-    "ratings": "dim_rating",
-    "vouchers": "dim_voucher",
-    "orders": "fact_orders"
-}
-
 # Mapping dari sumber (OLTP) ke tujuan (Data Warehouse)
 etl_config_dim_employee = {
     "employee": {
