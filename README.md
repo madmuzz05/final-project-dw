@@ -38,6 +38,18 @@ Berikut adalah use case utama yang dikembangkan dalam proyek ini:
 - 💰 Total biaya **gaji**
 - ⏱️ Total biaya **lembur**
 
+## 📁 Struktur Direktori
+
+```
+final-project-dw/
+├── dags/                      # DAG Airflow
+├── etl/                       # Script ETL dan ELT
+├── notebooks/                 # Jupyter Notebook dokumentasi
+├── sql/                       # Script SQL DWH dan Data Mart
+├── docker-compose.yaml        # Docker setup
+├── .env                       # Environment variables
+└── README.md                  # Dokumentasi proyek
+```
 ## ⚙️ Teknologi yang Digunakan
 - Docker
 - Apache Airflow
