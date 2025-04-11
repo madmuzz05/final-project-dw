@@ -43,37 +43,6 @@ dwh_conn = {
     'database': os.getenv('DWH_DB_DATABASE')
 }
 
-# Mapping antara tabel sumber (OLTP) dan tabel tujuan (Data Warehouse)
-table_mapping = {
-    "users": {"source": "tb_users", "destination": "dim_user"},
-    "payments": {"source": "tb_payments", "destination": "dim_payment"},
-    "shippers": {"source": "tb_shippers", "destination": "dim_shipper"},
-    "ratings": {"source": "tb_ratings", "destination": "dim_rating"},
-    "vouchers": {"source": "tb_vouchers", "destination": "dim_voucher"},
-    "orders": {
-        "source": ["tb_orders", "tb_users", "tb_payments", "tb_shippers", "tb_ratings", "tb_vouchers"],
-        "destination": "fact_orders"
-    }
-}
-
-oltp_tables = {
-    "users": "tb_users",
-    "payments": "tb_payments",
-    "shippers": "tb_shippers",
-    "ratings": "tb_ratings",
-    "vouchers": "tb_vouchers",
-    "orders": "tb_orders"
-}
-
-warehouse_tables = {
-    "users": "dim_user",
-    "payments": "dim_payment",
-    "shippers": "dim_shipper",
-    "ratings": "dim_rating",
-    "vouchers": "dim_voucher",
-    "orders": "fact_orders"
-}
-
 # Mapping dari sumber (OLTP) ke tujuan (Data Warehouse)
 etl_config_dim_employee = {
     "employee": {
@@ -201,4 +170,82 @@ etl_config_fact_recruitment = {
         },
         "query": {}  # Bisa tambahkan filter MongoDB di sini kalau perlu
     }
+}
+
+etl_config_mart = {
+    "total_employee_gender": {
+        "source_table": "dim_employee",
+        "destination_table": "mart_total_employee_gender",
+        "column_mapping": {
+            "gender_employee": "gender_employee",
+            "total_employee": "total_employee",
+        },
+        "query": """
+            SELECT gender as gender_employee, count(*) as total_employee FROM dim_employee GROUP BY gender
+        """
+    },
+    "total_employee_age": {
+        "source_table": "dim_employee",
+        "destination_table": "mart_total_employee_age",
+        "column_mapping": {
+            "age_employee": "age_employee",
+            "total_employee": "total_employee",
+        },
+        "query": """
+            SELECT age as age_employee, count(*) as total_employee FROM dim_employee GROUP BY age
+        """
+    },
+    "total_candidate_gender": {
+        "source_table": "dim_employee",
+        "destination_table": "mart_total_candidate_gender",
+        "column_mapping": {
+            "gender_candidate": "gender_candidate",
+            "total_candidate": "total_candidate",
+        },
+        "query": """
+            SELECT gender as gender_candidate, count(*) as total_candidate FROM dim_candidate GROUP BY gender
+        """
+    },
+    "total_candidate_age": {
+        "source_table": "dim_candidate",
+        "destination_table": "mart_total_candidate_age",
+        "column_mapping": {
+            "age_candidate": "age_candidate",
+            "total_candidate": "total_candidate",
+        },
+        "query": """
+            SELECT age as age_candidate, count(*) as total_candidate FROM dim_candidate GROUP BY age
+        """
+    },
+    "salary_department": {
+        "source_table": "dim_candidate",
+        "destination_table": "mart_salary_overtime_department",
+        "column_mapping": {
+            "department": "department",
+            "total_salary": "total_salary",
+            "total_overtime_pay": "total_overtime_pay",
+        },
+        "query": """
+            SELECT department, sum(p.salary) as total_salary, sum(p.overtime_pay) as total_overtime_pay 
+            FROM dim_employee e
+            INNER JOIN fact_payroll p on e.employee_id = p.employee_id
+            GROUP BY department
+        """
+    },
+    "salary_employee": {
+        "source_table": "dim_candidate",
+        "destination_table": "mart_salary_overtime_employee",
+        "column_mapping": {
+            "employee_id": "employee_id",
+            "name": "name",
+            "total_salary": "total_salary",
+            "total_overtime_pay": "total_overtime_pay",
+        },
+        "query": """
+            SELECT e.employee_id, e.name, sum(p.salary) as total_salary, sum(p.overtime_pay) as total_overtime_pay 
+            FROM dim_employee e
+            INNER JOIN fact_payroll p on e.employee_id = p.employee_id
+            GROUP BY e.employee_id
+        """
+    },
 }

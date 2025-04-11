@@ -13,6 +13,10 @@ from fact_payroll_etl import run_etl_fact_payroll
 from fact_training_etl import run_etl_fact_training
 from dim_candidate_etl import run_etl_dim_candidate
 from fact_recruitment_etl import run_etl_fact_recruitment
+from mart_etl import run_etl_mart
+
+from dwh_mart import run_etl_mart
+from mart_googleSheet import run_mart_gsheet
 
 with DAG(
     dag_id='etl',
@@ -51,8 +55,19 @@ with DAG(
         python_callable=run_etl_fact_recruitment,
     )
 
+    run_dwh_mart = PythonOperator(
+        task_id='run_dwh_mart',
+        python_callable=run_etl_mart,
+    )
+
+    run_mart_googleSheet = PythonOperator(
+        task_id='run_mart_googleSheet',
+        python_callable=run_mart_gsheet,
+    )
+
     end_task = EmptyOperator(
         task_id='end'
     )
 
-start_task >> run_etl >> run_payroll_etl >>run_training_etl >> run_dim_candidate_etl >> run_recruitment_etl >> end_task
+start_task >> run_etl >> run_payroll_etl >>run_training_etl >> run_dim_candidate_etl >> run_recruitment_etl >> run_dwh_mart >> run_mart_googleSheet >> end_task
+
