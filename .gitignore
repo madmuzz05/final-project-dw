@@ -173,3 +173,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 .env
+
+etl/__pycache__/
+credential.json
+
+etl/__init__.py
