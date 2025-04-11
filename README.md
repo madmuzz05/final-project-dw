@@ -38,13 +38,15 @@ Berikut adalah use case utama yang dikembangkan dalam proyek ini:
 - 💰 Total biaya **gaji**
 - ⏱️ Total biaya **lembur**
 
-## 🛠️ Tools & Teknologi
-
-- **Database**: PostgreSQL, MongoDB, MariaDB  
-- **ETL**: Python, Pandas  
-- **Transformasi**: Python / DBT (Data Build Tool)  
-- **Visualisasi**: Looker Studio  
-- **Orkestrasi**: Airflow  
+## ⚙️ Teknologi yang Digunakan
+- Docker
+- Apache Airflow
+- PostgreSQL (Data Warehouse)
+- MariaDB (OLTP Source – Training & Development)
+- MongoDB (OLTP Source – Recruitment)
+- Python (pandas, SQLAlchemy)
+- Google Looker Studio (Dashboard)
+- VS Code & GitHub
 
 ## 📈 Output Dashboard
 
