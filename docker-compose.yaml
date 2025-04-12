@@ -10,6 +10,7 @@ x-airflow-common:
     - ./airflow-data/plugins:/opt/airflow/plugins
     - ./airflow-data/airflow.cfg:/opt/airlfow/airflow.cfg
     - ./etl:/opt/airflow/etl
+    - ./credential.json:/opt/airflow/credential.json
   depends_on:
     - postgres
 

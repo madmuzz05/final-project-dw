@@ -75,7 +75,7 @@ def load(df, table_config):
         logging.info(f"Error replacing data in {table_config['destination_table']}: {err}")
         raise
 
-def run_etl_mart():
+def run_etl_mart_v2():
     """Run the full ETL process."""
     try:
         logging.info("Starting ETL Process...")
