@@ -142,7 +142,7 @@ etl_config_fact_performance_review = {
                 "ReviewPeriod",
                 "Rating",
                 "Comments"
-            FROM tb_performance_reviews
+            FROM tb_performance_management
             ORDER BY "EmployeeID"
         """
     },

@@ -13,6 +13,7 @@ from fact_payroll_etl import run_etl_fact_payroll
 from fact_training_etl import run_etl_fact_training
 from dim_candidate_etl import run_etl_dim_candidate
 from fact_recruitment_etl import run_etl_fact_recruitment
+from fact_performance_review_etl import run_etl_fact_performance_review
 from mart_etl import run_etl_mart
 
 with DAG(
@@ -51,6 +52,10 @@ with DAG(
         task_id='run_recruitment_etl_function',
         python_callable=run_etl_fact_recruitment,
     )
+    run_performance_review_etl = PythonOperator(
+        task_id='run_performance_review_etl_function',
+        python_callable=run_etl_fact_performance_review,
+    )
 
     run_mart_etl = PythonOperator(
         task_id='run_mart_etl_function',
@@ -61,4 +66,4 @@ with DAG(
         task_id='end'
     )
 
-start_task >> run_etl >> run_payroll_etl >>run_training_etl >> run_dim_candidate_etl >> run_recruitment_etl >> run_mart_etl >> end_task
+start_task >> run_etl >> run_payroll_etl >> run_performance_review_etl >>run_training_etl >> run_dim_candidate_etl >> run_recruitment_etl >> run_mart_etl >> end_task
